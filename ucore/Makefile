@@ -31,6 +31,7 @@ MAKEFLAGS += -rR --no-print-directory
 -include $(KCONFIG_AUTOCONFIG)
 
 #### CROSS COMPILE HERE ####
+CROSS_COMPILE ?= i386-elf-
 ARCH ?= $(patsubst "%",%,$(UCONFIG_ARCH))
 ARCH ?= amd64
 BOARD ?= default
@@ -118,6 +119,9 @@ menuconfig: $(CONFIG_DIR) $(CONFIG)/mconf $(CONFIG_SCRIPT)
 		test -f .config.cmd || rm -f $(CONFIG_SCRIPT); \
 	fi
 
+kmod:
+	$(MAKE) -f $(TOPDIR)/src/kmod/Makefile -C $(TOPDIR)/src/kmod T_BASE=$(TOPDIR) CC=$(TARGET_CC) LD=$(TARGET_LD) all
+
 PHONY += kernel userlib userapp
 
 kernel: $(OBJPATH_ROOT) $(KCONFIG_AUTOHEADER) $(KCONFIG_AUTOCONFIG)
@@ -143,14 +147,17 @@ SFSIMG_FILE := $(OBJPATH_ROOT)/sfs-orig.img
 TMPSFS := $(OBJPATH_ROOT)/.tmpsfs
 sfsimg: $(SFSIMG_LINK)
 
+## ??? why creating a symlink?
 $(SFSIMG_LINK): $(SFSIMG_FILE)
 	@ln -sf sfs-orig.img $@
 
-$(SFSIMG_FILE): $(TOOLS_MKSFS) userlib userapp FORCE | $(OBJPATH_ROOT)
+$(SFSIMG_FILE): $(TOOLS_MKSFS) userlib userapp FORCE kmod | $(OBJPATH_ROOT)
 	@echo Making $@
 	@rm -rf $(TMPSFS)
 	@mkdir -p $(TMPSFS)
 	@mkdir -p $(TMPSFS)/lib/modules
+	@cp -r $(TOPDIR)/src/kmod/hello.ko $(TMPSFS)/lib/modules/
+
 	@cp -r $(OBJPATH_ROOT)/user-ucore/bin $(TMPSFS)
 ifneq ($(UCORE_TEST),)
 	@cp -r $(OBJPATH_ROOT)/user-ucore/testbin $(TMPSFS)
@@ -158,6 +165,7 @@ endif
 	@$(Q)$(MAKE) -f $(TOPDIR)/src/user-ucore/Makefile -C $(TOPDIR)/src/user-ucore initial_dir
 	-cp -r $(TOPDIR)/src/user-ucore/_initial/* $(TMPSFS)
 	@rm -f $@
+	@echo $@
 	@dd if=/dev/zero of=$@ bs=1M count=$(UCONFIG_SFS_IMAGE_SIZE) >/dev/null 2>&1
 	@$(TOOLS_MKSFS) $@ $(TMPSFS)
 	@rm -rf $(TMPSFS)
@@ -215,6 +223,6 @@ kvmamd64smp: kernel sfsimg
 
 FORCE:
 
-PHONY += FORCE
+PHONY += FORCE kmod
 
 .PHONY: $(PHONY)

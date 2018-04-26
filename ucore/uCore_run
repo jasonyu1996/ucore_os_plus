@@ -90,6 +90,7 @@ case $UCONFIG_ARCH in
         if [ $? -eq 0 ]; then
             QEMU=qemu-system-i386
         fi
+		echo $QEMU
         EXTRA_OPT="-serial file:$BUILD_DIR/serial.log$TEST_POSTFIX"
         if [[ $TEST_MODE = y ]]; then
             EXTRA_OPT+=" -S -display none -gdb tcp::$GDB_PORT"

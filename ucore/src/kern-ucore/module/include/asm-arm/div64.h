@@ -62,6 +62,7 @@
 
 #include <asm/bug.h>
 
+#define __LINUX_ARM_ARCH__ 0
 /*
  * If the divisor happens to be constant, we determine the appropriate
  * inverse at compile time to turn the division into a few inline

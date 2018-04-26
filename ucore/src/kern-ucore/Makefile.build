@@ -55,6 +55,7 @@ endif
 
 $(KERNEL_BUILTIN_O): subdir
 	@echo Building uCore Kernel for $(UCONFIG_ARCH)
+	@echo $(TARGET_LD)
 	$(Q)$(TARGET_LD) $(TARGET_LDFLAGS) -r -o $@ $(shell xargs < $(KERNEL_BUILTIN_LIST))
 
 $(KTREE_OBJ_ROOT):

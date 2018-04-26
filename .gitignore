@@ -17,3 +17,6 @@
 *.bak
 *.new
 *.org
+
+*.ko
+.vscode/

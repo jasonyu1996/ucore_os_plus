@@ -4,6 +4,14 @@ T_CC_ALL_FLAGS	+= -Iarch/${ARCH} -D__ARCH_I386__ -m32
 include ${T_BASE}/mk/compbl.mk
 include ${T_BASE}/mk/template.mk
 
+CC     := $(TARGET_CC)
+LD     := $(TARGET_LD)
+OBJDUMP:= $(TARGET_OBJDUMP)
+OBJCOPY:= $(TARGET_OBJCOPY)
+STRIP  := $(TARGET_STRIP)
+
+
+
 all: ${T_OBJ}/bootsect
 
 ${T_OBJ}/bootsect: ${T_OBJ}/bootloader ${HT_SIGN}
